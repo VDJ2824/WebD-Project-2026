@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Faculty</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial;
+    background:#f4f6f9;
+    padding:30px;
+    overflow-x: hidden;
+}
+
+/* Header */
+h2 {
+    margin-bottom: 20px;
+}
+
+/* Add Button */
+.top-btn {
+    display: inline-block;
+    margin-bottom: 20px;
+    padding: 10px 15px;
+    background: rgb(8, 196, 8);
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+}
+
+/* Search */
+.search-box {
+    margin-bottom:20px;
+}
+
+.search-box input {
+    width:100%;
+    padding:12px;
+    border-radius:8px;
+    border:1px solid #ccc;
+}
+
+/* SCROLL CONTAINER */
+.grid {
+    display: flex;
+    flex-direction: column;
+    height: 75vh;
+    overflow-y: auto;
+    gap: 15px;
+    padding-right: 5px;
+}
+
+/* CARD */
+.card {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    background: white;
+    padding: 20px 25px;
+    border-radius: 12px;
+
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    transition: 0.3s;
+}
+
+.card:hover {
+    transform: translateY(-4px);
+}
+
+/* LEFT SIDE */
+.card-left {
+    display: flex;
+    flex-direction: column;
+}
+
+.card-left h3 {
+    font-size: 20px;
+    font-weight: bold;
+    color: #2e59d9;
+    margin-bottom: 6px;
+}
+
+.card-left p {
+    margin: 2px 0;
+    font-size: 14px;
+    color: #555;
+}
+
+/* RIGHT SIDE */
+.card-right {
+    display: flex;
+    gap: 10px;
+}
+
+/* BUTTONS */
+.btn {
+    padding:8px 12px;
+    background:#2e59d9;
+    color:white;
+    text-decoration:none;
+    border-radius:6px;
+    border:none;
+    cursor:pointer;
+}
+
+.btn-danger {
+    background:#e74a3b;
+}
+
+/* Scrollbar */
+.grid::-webkit-scrollbar {
+    width: 6px;
+}
+
+.grid::-webkit-scrollbar-thumb {
+    background: #2e59d9;
+    border-radius: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<h2>Faculty Directory</h2>
+
+<!-- ➕ ADD FACULTY BUTTON -->
+{% if request.user.is_superuser %}
+    <a href="{% url 'add_faculty' %}" class="top-btn">
+        + Add Faculty
+    </a>
+{% endif %}
+
+<!-- 🔍 SEARCH -->
+<div class="search-box">
+    <input type="text" id="searchInput" placeholder="Search by name, ID, or field..." onkeyup="searchFaculty()">
+</div>
+
+<!-- 📋 LIST -->
+<div class="grid" id="facultyGrid">
+
+{% for faculty in faculties %}
+    <div class="card faculty-card"
+         data-name="{{ faculty.name|lower }}"
+         data-id="{{ faculty.author_id }}"
+         data-field="{{ faculty.field|lower }}">
+
+        <!-- LEFT -->
+        <div class="card-left">
+            <h3>{{ faculty.name }}</h3>
+            <p><strong>ID:</strong> {{ faculty.author_id }}</p>
+            <p><strong>Department:</strong> {{ faculty.department }}</p>
+            <p><strong>Field:</strong> {{ faculty.field }}</p>
+        </div>
+
+        <!-- RIGHT -->
+        <div class="card-right">
+
+            <a href="{% url 'faculty_profile' faculty.id %}" class="btn">
+                View
+            </a>
+
+            {% if request.user.is_superuser %}
+                <a href="{% url 'edit_faculty' faculty.id %}" class="btn">
+                    Edit
+                </a>
+
+                <a href="{% url 'delete_faculty' faculty.id %}" class="btn btn-danger">
+                    Delete
+                </a>
+            {% endif %}
+
+        </div>
+
+    </div>
+{% endfor %}
+
+</div>
+
+<script>
+function searchFaculty() {
+    let input = document.getElementById("searchInput").value.toLowerCase();
+    let cards = document.getElementsByClassName("faculty-card");
+
+    for (let i = 0; i < cards.length; i++) {
+        let name = cards[i].dataset.name;
+        let id = cards[i].dataset.id;
+        let field = cards[i].dataset.field;
+
+        if (name.includes(input) || id.includes(input) || field.includes(input)) {
+            cards[i].style.display = "flex";
+        } else {
+            cards[i].style.display = "none";
+        }
+    }
+}
+</script>
+
+</body>
+</html>

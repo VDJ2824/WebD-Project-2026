@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+    <title>Add Faculty</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background:#f4f6f9;
+            padding:30px;
+        }
+
+        .container {
+            max-width:800px;
+            margin:auto;
+        }
+
+        /* Title */
+        h2 {
+            margin-bottom:20px;
+            color:#2e59d9;
+        }
+
+        /* Form Block */
+        .block {
+            background:white;
+            padding:20px;
+            margin-bottom:20px;
+            border-radius:12px;
+            box-shadow:0 5px 15px rgba(0,0,0,0.08);
+            transition:0.3s;
+        }
+
+        .block:hover {
+            transform:translateY(-3px);
+        }
+
+        /* Labels */
+        label {
+            font-size:14px;
+            font-weight:bold;
+            color:#444;
+        }
+
+        /* Inputs */
+        input {
+            width:100%;
+            padding:12px;
+            margin:6px 0 15px 0;
+            border-radius:8px;
+            border:1px solid #ccc;
+            outline:none;
+            transition:0.2s;
+        }
+
+        input:focus {
+            border-color:#2e59d9;
+            box-shadow:0 0 5px rgba(46,89,217,0.3);
+        }
+
+        /* Buttons */
+        .btn {
+            padding:12px 18px;
+            background:#2e59d9;
+            color:white;
+            border:none;
+            border-radius:8px;
+            cursor:pointer;
+            font-size:14px;
+            transition:0.3s;
+        }
+
+        .btn:hover {
+            background:#1d3fbf;
+        }
+
+        /* Add button */
+        .add-btn {
+            background:#1cc88a;
+        }
+
+        .add-btn:hover {
+            background:#17a673;
+        }
+
+        /* Button spacing */
+        .actions {
+            display:flex;
+            gap:10px;
+            margin-top:10px;
+        }
+
+        /* Responsive */
+        @media (max-width:600px) {
+            .actions {
+                flex-direction:column;
+            }
+        }
+        </style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>Add Faculty</h2>
+
+<form method="POST">
+    {% csrf_token %}
+
+    <div id="form-container">
+
+        <!-- ONE DEFAULT FORM -->
+        <div class="block">
+
+            <label>Name</label>
+            <input type="text" name="name[]" required>
+
+            <label>Scopus ID</label>
+            <input type="text" name="author_id[]" required>
+
+            <label>Department</label>
+            <input type="text" name="department[]">
+
+            <label>Field</label>
+            <input type="text" name="field[]">
+
+        </div>
+
+    </div>
+
+    <button type="button" class="btn add-btn" onclick="addForm()">+ Add Another</button>
+    <br><br>
+    <button type="submit" class="btn">Save All</button>
+
+</form>
+
+</div>
+
+<script>
+function addForm() {
+    let container = document.getElementById("form-container");
+
+    let newForm = `
+    <div class="block">
+        <label>Name</label>
+            <input type="text" name="name[]" required>
+
+            <label>Scopus ID</label>
+            <input type="text" name="author_id[]" required>
+
+            <label>Department</label>
+            <input type="text" name="department[]">
+
+            <label>Field</label>
+            <input type="text" name="field[]">
+            <!-- REMOVE BUTTON -->
+            <button type="button" class="btn btn-danger" onclick="removeBlock(this)">Remove</button>
+    </div>
+    `;
+
+    container.insertAdjacentHTML('beforeend', newForm);
+}
+function removeBlock(button) {
+    button.parentElement.remove();
+}
+</script>
+
+</body>
+</html>
