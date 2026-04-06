@@ -11,7 +11,7 @@ def fetch_papers(author_id):
     params = {
         "query": f"AU-ID({author_id})",
         "httpAccept": "application/json",
-        "count": 25,
+        "count": 65,
         "sort": "-coverDate"
     }
 
