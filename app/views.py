@@ -184,6 +184,7 @@ def delete_faculty(request, fid):
         return HttpResponse("Unauthorized", status=403)
 
     db.child("faculties").child(fid).delete()
+    db.child("papers").child(fid).delete()
     return redirect('faculty')
 
 
