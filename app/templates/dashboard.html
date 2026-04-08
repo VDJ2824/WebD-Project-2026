@@ -260,18 +260,20 @@ function goToField(field) {
 const years = JSON.parse('{{ years|escapejs }}');
 const counts = JSON.parse('{{ counts|escapejs }}');
 
-/* DERIVED DATA */
-const cumulative = counts.map((sum => v => sum += v)(0));
-const reversed = [...counts].reverse();
-const normalized = counts.map(x => x / Math.max(...counts));
+const facultyNames = JSON.parse('{{ faculty_names|escapejs }}');
+const facultyPapers = JSON.parse('{{ faculty_papers|escapejs }}');
+const citations = JSON.parse('{{ citations_per_faculty|escapejs }}');
+const fields = JSON.parse('{{ fields|escapejs }}');
+const fieldCounts = JSON.parse('{{ field_counts|escapejs }}');
 
-function createChart(id, data) {
+/* ===== CHART FUNCTION ===== */
+function createChart(id, type, labels, data) {
     const ctx = document.getElementById(id).getContext('2d');
 
     new Chart(ctx, {
-        type: 'line',
+        type: type,
         data: {
-            labels: years,
+            labels: labels,
             datasets: [{
                 data: data,
                 borderWidth: 2,
@@ -280,17 +282,24 @@ function createChart(id, data) {
         },
         options: {
             plugins: { legend: { display: false } },
-            scales: { x: { display: false }, y: { display: false } },
             responsive: true
         }
     });
 }
 
-/* 4 DIFFERENT CHARTS */
-createChart('chart1', counts);
-createChart('chart2', cumulative);
-createChart('chart3', normalized);
-createChart('chart4', reversed);
+/* ===== FINAL MEANINGFUL GRAPHS ===== */
+
+/* 1. Papers per Faculty */
+createChart('chart1', 'bar', facultyNames, facultyPapers);
+
+/* 2. Field Distribution */
+createChart('chart2', 'pie', fields, fieldCounts);
+
+/* 3. Citations per Faculty */
+createChart('chart3', 'bar', facultyNames, citations);
+
+/* 4. Recent Trend (ONLY valid time graph) */
+createChart('chart4', 'line', years, counts);
 
 /* AUTO REFRESH */
 setInterval(() => {
