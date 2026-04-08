@@ -142,6 +142,17 @@ body {
     display: block;
 }
 
+.chart-error {
+    display: none;
+    margin-top: 12px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    background: #fff3cd;
+    color: #7a5d00;
+    font-size: 14px;
+    text-align: left;
+}
+
 @media (max-width: 992px) {
     .cards {
         grid-template-columns: 1fr;
@@ -239,6 +250,7 @@ body {
             <p>Papers by Faculty</p>
             <div class="chart-wrap">
                 <canvas id="chart1"></canvas>
+                <div class="chart-error" id="chart1-error">Chart could not be loaded.</div>
             </div>
         </div>
 
@@ -247,6 +259,7 @@ body {
             <p>Faculty by Research Field</p>
             <div class="chart-wrap">
                 <canvas id="chart2"></canvas>
+                <div class="chart-error" id="chart2-error">Chart could not be loaded.</div>
             </div>
         </div>
 
@@ -255,6 +268,7 @@ body {
             <p>Citations by Faculty</p>
             <div class="chart-wrap">
                 <canvas id="chart3"></canvas>
+                <div class="chart-error" id="chart3-error">Chart could not be loaded.</div>
             </div>
         </div>
 
@@ -263,6 +277,7 @@ body {
             <p>Publications by Year</p>
             <div class="chart-wrap">
                 <canvas id="chart4"></canvas>
+                <div class="chart-error" id="chart4-error">Chart could not be loaded.</div>
             </div>
         </div>
 
@@ -298,37 +313,93 @@ function goToField(field) {
     window.location.href = "/faculty/?field=" + encodeURIComponent(field);
 }
 
-const years = JSON.parse('{{ years|escapejs }}');
-const counts = JSON.parse('{{ counts|escapejs }}');
+function showChartError(id, message) {
+    const canvas = document.getElementById(id);
+    const errorBox = document.getElementById(id + '-error');
 
-const facultyNames = JSON.parse('{{ faculty_names|escapejs }}');
-const facultyPapers = JSON.parse('{{ faculty_papers|escapejs }}');
-const citations = JSON.parse('{{ citations_per_faculty|escapejs }}');
-const fields = JSON.parse('{{ fields|escapejs }}');
-const fieldCounts = JSON.parse('{{ field_counts|escapejs }}');
+    if (canvas) {
+        canvas.style.display = 'none';
+    }
+
+    if (errorBox) {
+        errorBox.textContent = message;
+        errorBox.style.display = 'block';
+    }
+}
+
+function parseChartData(rawValue, fallback, label) {
+    try {
+        return JSON.parse(rawValue);
+    } catch (error) {
+        console.error('Failed to parse chart data for ' + label, error, rawValue);
+        return fallback;
+    }
+}
+
+const years = parseChartData('{{ years|escapejs }}', [], 'years');
+const counts = parseChartData('{{ counts|escapejs }}', [], 'counts');
+
+const facultyNames = parseChartData('{{ faculty_names|escapejs }}', [], 'faculty_names');
+const facultyPapers = parseChartData('{{ faculty_papers|escapejs }}', [], 'faculty_papers');
+const citations = parseChartData('{{ citations_per_faculty|escapejs }}', [], 'citations_per_faculty');
+const fields = parseChartData('{{ fields|escapejs }}', [], 'fields');
+const fieldCounts = parseChartData('{{ field_counts|escapejs }}', [], 'field_counts');
 
 function createChart(id, type, labels, data) {
-    const ctx = document.getElementById(id).getContext('2d');
+    const canvas = document.getElementById(id);
 
-    new Chart(ctx, {
-        type: type,
-        data: {
-            labels: labels,
-            datasets: [{
-                data: data,
-                borderWidth: 2,
-                tension: 0.3
-            }]
-        },
-        options: {
-            plugins: { legend: { display: false } },
-            responsive: true,
-            maintainAspectRatio: false,
-            layout: {
-                padding: 8
+    if (!canvas) {
+        console.error('Canvas not found for', id);
+        return;
+    }
+
+    if (typeof Chart === 'undefined') {
+        showChartError(id, 'Chart library failed to load.');
+        console.error('Chart.js is not available.');
+        return;
+    }
+
+    if (!Array.isArray(labels) || !Array.isArray(data) || labels.length === 0 || data.length === 0) {
+        showChartError(id, 'No chart data available.');
+        return;
+    }
+
+    try {
+        const ctx = canvas.getContext('2d');
+
+        new Chart(ctx, {
+            type: type,
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: data,
+                    borderWidth: 2,
+                    tension: 0.3,
+                    backgroundColor: [
+                        '#4e73df',
+                        '#1cc88a',
+                        '#36b9cc',
+                        '#f6c23e',
+                        '#e74a3b',
+                        '#858796',
+                        '#5a5c69'
+                    ],
+                    borderColor: '#2e59d9'
+                }]
+            },
+            options: {
+                plugins: { legend: { display: type === 'pie' } },
+                responsive: true,
+                maintainAspectRatio: false,
+                layout: {
+                    padding: 8
+                }
             }
-        }
-    });
+        });
+    } catch (error) {
+        console.error('Failed to render chart ' + id, error);
+        showChartError(id, 'Chart could not be rendered.');
+    }
 }
 
 createChart('chart1', 'bar', facultyNames, facultyPapers);
@@ -344,4 +415,3 @@ setInterval(() => {
 
 </body>
 </html>
-
