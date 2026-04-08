@@ -285,6 +285,14 @@ body {
 
 </div>
 
+{{ years|json_script:"years-data" }}
+{{ counts|json_script:"counts-data" }}
+{{ faculty_names|json_script:"faculty-names-data" }}
+{{ faculty_papers|json_script:"faculty-papers-data" }}
+{{ citations_per_faculty|json_script:"citations-data" }}
+{{ fields|json_script:"fields-data" }}
+{{ field_counts|json_script:"field-counts-data" }}
+
 <script>
 function toggleSidebar() {
     document.getElementById("sidebar").classList.toggle("expand");
@@ -336,14 +344,25 @@ function parseChartData(rawValue, fallback, label) {
     }
 }
 
-const years = parseChartData('{{ years|escapejs }}', [], 'years');
-const counts = parseChartData('{{ counts|escapejs }}', [], 'counts');
+function readJsonScript(id, fallback, label) {
+    const element = document.getElementById(id);
 
-const facultyNames = parseChartData('{{ faculty_names|escapejs }}', [], 'faculty_names');
-const facultyPapers = parseChartData('{{ faculty_papers|escapejs }}', [], 'faculty_papers');
-const citations = parseChartData('{{ citations_per_faculty|escapejs }}', [], 'citations_per_faculty');
-const fields = parseChartData('{{ fields|escapejs }}', [], 'fields');
-const fieldCounts = parseChartData('{{ field_counts|escapejs }}', [], 'field_counts');
+    if (!element) {
+        console.error('JSON script tag not found for ' + label);
+        return fallback;
+    }
+
+    return parseChartData(element.textContent, fallback, label);
+}
+
+const years = readJsonScript('years-data', [], 'years');
+const counts = readJsonScript('counts-data', [], 'counts');
+
+const facultyNames = readJsonScript('faculty-names-data', [], 'faculty_names');
+const facultyPapers = readJsonScript('faculty-papers-data', [], 'faculty_papers');
+const citations = readJsonScript('citations-data', [], 'citations_per_faculty');
+const fields = readJsonScript('fields-data', [], 'fields');
+const fieldCounts = readJsonScript('field-counts-data', [], 'field_counts');
 
 function createChart(id, type, labels, data) {
     const canvas = document.getElementById(id);
