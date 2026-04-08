@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Dashboard</title>
+<title>Research Dashboard</title>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -77,6 +77,7 @@ body {
     margin-left: 70px;
     padding: 30px;
     min-height: 100vh;
+    box-sizing: border-box;
 }
 
 .sidebar.expand ~ .main {
@@ -110,6 +111,7 @@ body {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 20px;
+    align-items: stretch;
 }
 
 .card {
@@ -119,11 +121,41 @@ body {
     text-align: center;
     box-shadow: 0 3px 10px rgba(0,0,0,0.1);
     position: relative;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.card p {
+    margin-bottom: 12px;
+}
+
+.chart-wrap {
+    position: relative;
+    width: 100%;
+    height: 280px;
+    margin-top: 10px;
 }
 
 .card canvas {
-    margin-top: 10px;
-    height: 150px
+    width: 100% !important;
+    height: 100% !important;
+    display: block;
+}
+
+@media (max-width: 992px) {
+    .cards {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .main {
+        padding: 20px;
+    }
+
+    .chart-wrap {
+        height: 220px;
+    }
 }
 .menu-link {
     display: flex;
@@ -197,33 +229,41 @@ body {
         </div>
     </div>
 
-    <h1>Welcome!</h1>
+    <h1>Research Dashboard</h1>
 
     <!-- Cards -->
     <div class="cards">
 
         <div class="card">
             <h2>{{ total_papers }}</h2>
-            <p>Total Papers</p>
-            <canvas id="chart1"></canvas>
+            <p>Papers by Faculty</p>
+            <div class="chart-wrap">
+                <canvas id="chart1"></canvas>
+            </div>
         </div>
 
         <div class="card">
             <h2>{{ total_faculties }}</h2>
-            <p>Faculty</p>
-            <canvas id="chart2"></canvas>
+            <p>Faculty by Research Field</p>
+            <div class="chart-wrap">
+                <canvas id="chart2"></canvas>
+            </div>
         </div>
 
         <div class="card">
             <h2>{{ total_citations }}</h2>
-            <p>Citations</p>
-            <canvas id="chart3"></canvas>
+            <p>Citations by Faculty</p>
+            <div class="chart-wrap">
+                <canvas id="chart3"></canvas>
+            </div>
         </div>
 
         <div class="card">
             <h2>{{ years|length }}</h2>
-            <p>Active Years</p>
-            <canvas id="chart4"></canvas>
+            <p>Publications by Year</p>
+            <div class="chart-wrap">
+                <canvas id="chart4"></canvas>
+            </div>
         </div>
 
     </div>
@@ -258,14 +298,14 @@ function goToField(field) {
     window.location.href = "/faculty/?field=" + encodeURIComponent(field);
 }
 
-const years = JSON.parse('{{ years|safe }}');
-const counts = JSON.parse('{{ counts|safe }}');
+const years = JSON.parse('{{ years|escapejs }}');
+const counts = JSON.parse('{{ counts|escapejs }}');
 
-const facultyNames = JSON.parse('{{ faculty_names|safe }}');
-const facultyPapers = JSON.parse('{{ faculty_papers|safe }}');
-const citations = JSON.parse('{{ citations_per_faculty|safe }}');
-const fields = JSON.parse('{{ fields|safe }}');
-const fieldCounts = JSON.parse('{{ field_counts|safe }}');
+const facultyNames = JSON.parse('{{ faculty_names|escapejs }}');
+const facultyPapers = JSON.parse('{{ faculty_papers|escapejs }}');
+const citations = JSON.parse('{{ citations_per_faculty|escapejs }}');
+const fields = JSON.parse('{{ fields|escapejs }}');
+const fieldCounts = JSON.parse('{{ field_counts|escapejs }}');
 
 function createChart(id, type, labels, data) {
     const ctx = document.getElementById(id).getContext('2d');
@@ -283,7 +323,10 @@ function createChart(id, type, labels, data) {
         options: {
             plugins: { legend: { display: false } },
             responsive: true,
-            maintainAspectRatio: false
+            maintainAspectRatio: false,
+            layout: {
+                padding: 8
+            }
         }
     });
 }
@@ -301,3 +344,4 @@ setInterval(() => {
 
 </body>
 </html>
+
