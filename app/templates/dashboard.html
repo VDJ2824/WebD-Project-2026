@@ -118,10 +118,12 @@ body {
     border-radius: 10px;
     text-align: center;
     box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    position: relative;
 }
 
 .card canvas {
     margin-top: 10px;
+    height: 150px
 }
 .menu-link {
     display: flex;
@@ -203,25 +205,25 @@ body {
         <div class="card">
             <h2>{{ total_papers }}</h2>
             <p>Total Papers</p>
-            <canvas id="chart1" height="40"></canvas>
+            <canvas id="chart1"></canvas>
         </div>
 
         <div class="card">
             <h2>{{ total_faculties }}</h2>
             <p>Faculty</p>
-            <canvas id="chart2" height="40"></canvas>
+            <canvas id="chart2"></canvas>
         </div>
 
         <div class="card">
             <h2>{{ total_citations }}</h2>
             <p>Citations</p>
-            <canvas id="chart3" height="40"></canvas>
+            <canvas id="chart3"></canvas>
         </div>
 
         <div class="card">
             <h2>{{ years|length }}</h2>
             <p>Active Years</p>
-            <canvas id="chart4" height="40"></canvas>
+            <canvas id="chart4"></canvas>
         </div>
 
     </div>
@@ -256,17 +258,15 @@ function goToField(field) {
     window.location.href = "/faculty/?field=" + encodeURIComponent(field);
 }
 
-/* DATA */
-const years = JSON.parse('{{ years|escapejs }}');
-const counts = JSON.parse('{{ counts|escapejs }}');
+const years = JSON.parse('{{ years|safe }}');
+const counts = JSON.parse('{{ counts|safe }}');
 
-const facultyNames = JSON.parse('{{ faculty_names|escapejs }}');
-const facultyPapers = JSON.parse('{{ faculty_papers|escapejs }}');
-const citations = JSON.parse('{{ citations_per_faculty|escapejs }}');
-const fields = JSON.parse('{{ fields|escapejs }}');
-const fieldCounts = JSON.parse('{{ field_counts|escapejs }}');
+const facultyNames = JSON.parse('{{ faculty_names|safe }}');
+const facultyPapers = JSON.parse('{{ faculty_papers|safe }}');
+const citations = JSON.parse('{{ citations_per_faculty|safe }}');
+const fields = JSON.parse('{{ fields|safe }}');
+const fieldCounts = JSON.parse('{{ field_counts|safe }}');
 
-/* ===== CHART FUNCTION ===== */
 function createChart(id, type, labels, data) {
     const ctx = document.getElementById(id).getContext('2d');
 
@@ -282,23 +282,15 @@ function createChart(id, type, labels, data) {
         },
         options: {
             plugins: { legend: { display: false } },
-            responsive: true
+            responsive: true,
+            maintainAspectRatio: false
         }
     });
 }
 
-/* ===== FINAL MEANINGFUL GRAPHS ===== */
-
-/* 1. Papers per Faculty */
 createChart('chart1', 'bar', facultyNames, facultyPapers);
-
-/* 2. Field Distribution */
 createChart('chart2', 'pie', fields, fieldCounts);
-
-/* 3. Citations per Faculty */
 createChart('chart3', 'bar', facultyNames, citations);
-
-/* 4. Recent Trend (ONLY valid time graph) */
 createChart('chart4', 'line', years, counts);
 
 /* AUTO REFRESH */
