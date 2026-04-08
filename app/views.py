@@ -6,8 +6,6 @@ from app.scopus_service import store_faculty_and_papers
 
 db = get_db()
 
-
-# 🔐 LOGIN (FIXED)
 def login_view(request):
     if request.method == "POST":
         user = authenticate(
@@ -26,8 +24,6 @@ def login_view(request):
 
     return render(request, "login.html")
 
-
-# 🆕 SIGNUP (FIXED)
 from django.contrib.auth.models import User
 
 def signup_view(request):
@@ -43,7 +39,6 @@ def signup_view(request):
             password=password
         )
 
-        # 🔒 Explicitly ensure normal user
         user.is_superuser = False
         user.is_staff = False
         user.save()
@@ -52,8 +47,6 @@ def signup_view(request):
 
     return render(request, "signup.html")
 
-
-# 📊 DASHBOARD (FIXED)
 @login_required
 def dashboard_view(request):
 
@@ -65,32 +58,56 @@ def dashboard_view(request):
     total_citations = 0
 
     year_count = {}
+    faculty_names = []
+    faculty_papers = []
+    citations_per_faculty = []
+    field_count = {}
 
-    for fid in papers:
-        for pid in papers[fid]:
-            p = papers[fid][pid]
+    for fid, faculty in faculties.items():
+        faculty_name = faculty.get("name", "Unknown Faculty")
+        faculty_field = faculty.get("field", "Uncategorized")
+        faculty_paper_map = papers.get(fid, {}) or {}
 
-            total_papers += 1
-            total_citations += int(p.get("citations", 0))
+        faculty_names.append(faculty_name)
+        faculty_papers.append(len(faculty_paper_map))
 
-            year = p.get("year", 0)
+        faculty_citations = 0
+        for paper in faculty_paper_map.values():
+            citations = paper.get("citations", 0)
+            try:
+                faculty_citations += int(citations)
+            except (TypeError, ValueError):
+                faculty_citations += 0
+
+            year = paper.get("year", 0)
             if year:
                 year_count[year] = year_count.get(year, 0) + 1
 
+            total_papers += 1
+
+        citations_per_faculty.append(faculty_citations)
+        total_citations += faculty_citations
+        field_count[faculty_field] = field_count.get(faculty_field, 0) + 1
+
     years = sorted(year_count.keys())
     counts = [year_count[y] for y in years]
+    fields = sorted(field_count.keys())
+    field_counts = [field_count[field] for field in fields]
 
     return render(request, "dashboard.html", {
-        "username": request.user.username,   # ✅ FIXED
+        "username": request.user.username,
         "total_faculties": total_faculties,
         "total_papers": total_papers,
         "total_citations": total_citations,
         "years": years,
-        "counts": counts
+        "counts": counts,
+        "faculty_names": faculty_names,
+        "faculty_papers": faculty_papers,
+        "citations_per_faculty": citations_per_faculty,
+        "fields": fields,
+        "field_counts": field_counts,
     })
 
-
-# 👨‍🏫 FACULTY LIST (no change)
 @login_required
 def faculty_list(request):
     data = db.child("faculties").get() or {}
@@ -133,7 +150,7 @@ def faculty_profile(request, fid):
     })
 
 
-# 🔒 ADMIN ONLY
+# ADMIN ONLY
 @login_required
 def add_faculty(request):
     if not request.user.is_superuser:
@@ -187,8 +204,6 @@ def delete_faculty(request, fid):
     db.child("papers").child(fid).delete()
     return redirect('faculty')
 
-
-# 🚪 LOGOUT (FIXED)
 def logout_view(request):
     logout(request)
     return redirect("login")
