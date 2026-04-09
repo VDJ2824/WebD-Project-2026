@@ -2,7 +2,7 @@ import requests
 import time
 from backend.firebase_config import get_db
 
-API_KEY = "ff63bce5bcb9772f8a90f10f5e7ab5c4"
+API_KEY = "b93eb38460b7dffd67e68bafe5e184cb"
 
 
 def fetch_papers(author_id):
