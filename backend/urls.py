@@ -5,6 +5,7 @@ from app import views
 urlpatterns = [
     # 🔐 Django Admin Panel
     path('admin/', admin.site.urls),   # ✅ ADD THIS
+    path('', include('app.urls')),
 
     # 🔐 Auth
     path('', views.login_view, name='login'),
