@@ -150,8 +150,8 @@ def store_faculty_and_papers(name, author_id, department, field):
         "fetched_count": len(papers),
         "stored_count": stored_count,
         "skipped_count": skipped_count,
-        "updated_papers": updated_papers,  # 🔥 ADDED
-        "new_papers": new_papers,          # 🔥 ADDED
+        "updated_papers": updated_papers,  
+        "new_papers": new_papers,          
         "error": fetch_result["error"],
         "status_code": fetch_result["status_code"],
     }
@@ -168,9 +168,7 @@ def update_all_faculty_data():
 
     total = 0
 
-    for faculty in faculties.each():
-        data = faculty.val()
-
+    for key, data in faculties.items():
         name = data.get("name")
         author_id = data.get("author_id")
         department = data.get("department")
