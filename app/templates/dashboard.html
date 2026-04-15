@@ -250,6 +250,9 @@ body {
         <div class="card">
             <h2>{{ total_papers }}</h2>
             <p>Papers by Faculty</p>
+                <select id="fieldFilter1" onchange="filterChart1()">
+                    <option value="All">All Fields</option>
+                </select>
             <div class="chart-wrap">
                 <canvas id="chart1"></canvas>
                 <div class="chart-error" id="chart1-error">Chart could not be loaded.</div>
@@ -268,6 +271,9 @@ body {
         <div class="card">
             <h2>{{ total_citations }}</h2>
             <p>Citations by Faculty</p>
+                <select id="fieldFilter3" onchange="filterChart3()">
+                    <option value="All">All Fields</option>
+                </select>
             <div class="chart-wrap">
                 <canvas id="chart3"></canvas>
                 <div class="chart-error" id="chart3-error">Chart could not be loaded.</div>
@@ -294,6 +300,7 @@ body {
 {{ citations_per_faculty|json_script:"citations-data" }}
 {{ fields|json_script:"fields-data" }}
 {{ field_counts|json_script:"field-counts-data" }}
+{{ faculty_fields|json_script:"faculty-fields-data" }}
 
 <script>
 function toggleSidebar() {
@@ -366,72 +373,121 @@ const citations = readJsonScript('citations-data', [], 'citations_per_faculty');
 const fields = readJsonScript('fields-data', [], 'fields');
 const fieldCounts = readJsonScript('field-counts-data', [], 'field_counts');
 
+const facultyFields = readJsonScript('faculty-fields-data', [], 'faculty_fields');
+
 function createChart(id, type, labels, data) {
     const canvas = document.getElementById(id);
+    if (!canvas) return;
 
-    if (!canvas) {
-        console.error('Canvas not found for', id);
-        return;
+    const ctx = canvas.getContext('2d');
+
+    // 👉 Fix overcrowding ONLY for bar charts
+    if (type === 'bar') {
+        canvas.parentElement.style.overflowX = "auto";
+        canvas.style.minWidth = (labels.length * 80) + "px";
     }
 
-    if (typeof Chart === 'undefined') {
-        showChartError(id, 'Chart library failed to load.');
-        console.error('Chart.js is not available.');
-        return;
-    }
+    const colors = [
+        '#4e73df',
+        '#1cc88a',
+        '#36b9cc',
+        '#f6c23e',
+        '#e74a3b',
+        '#858796',
+        '#5a5c69'
+    ];
 
-    if (!Array.isArray(labels) || !Array.isArray(data) || labels.length === 0 || data.length === 0) {
-        showChartError(id, 'No chart data available.');
-        return;
-    }
-
-    try {
-        const ctx = canvas.getContext('2d');
-
-        new Chart(ctx, {
-            type: type,
-            data: {
-                labels: labels,
-                datasets: [{
-                    data: data,
-                    borderWidth: 2,
-                    tension: 0.3,
-                    backgroundColor: [
-                        '#4e73df',
-                        '#1cc88a',
-                        '#36b9cc',
-                        '#f6c23e',
-                        '#e74a3b',
-                        '#858796',
-                        '#5a5c69'
-                    ],
-                    borderColor: '#2e59d9'
-                }]
+    return new Chart(ctx, {
+        type: type,
+        data: {
+            labels: labels,
+            datasets: [{
+                label: '',
+                data: data,
+                backgroundColor: labels.map((_, i) => colors[i % colors.length])
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
             },
-            options: {
-                plugins: { legend: { display: type === 'pie' } },
-                responsive: true,
-                maintainAspectRatio: false,
-                layout: {
-                    padding: 8
+            scales: {
+                x: {
+                    ticks: {
+                        autoSkip: false,
+                        maxRotation: 45,
+                        minRotation: 30
+                    }
                 }
             }
-        });
-    } catch (error) {
-        console.error('Failed to render chart ' + id, error);
-        showChartError(id, 'Chart could not be rendered.');
-    }
+        }
+    });
 }
 
-createChart('chart1', 'bar', facultyNames, facultyPapers);
-createChart('chart2', 'pie', fields, fieldCounts);
-createChart('chart3', 'bar', facultyNames, citations);
-createChart('chart4', 'line', years, counts);
+let chart1, chart3;
 
+// ✅ Papers chart filter
+function filterChart1() {
+    const field = document.getElementById("fieldFilter1").value;
+
+    let names = [];
+    let papers = [];
+
+    for (let i = 0; i < facultyNames.length; i++) {
+        if (field === "All" || facultyFields[i] === field) {
+            names.push(facultyNames[i]);
+            papers.push(facultyPapers[i]);
+        }
+    }
+
+    if (chart1) chart1.destroy();
+    chart1 = createChart('chart1', 'bar', names, papers);
+}
+
+// ✅ Citations chart filter
+function filterChart3() {
+    const field = document.getElementById("fieldFilter3").value;
+
+    let names = [];
+    let cites = [];
+
+    for (let i = 0; i < facultyNames.length; i++) {
+        if (field === "All" || facultyFields[i] === field) {
+            names.push(facultyNames[i]);
+            cites.push(citations[i]);
+        }
+    }
+
+    if (chart3) chart3.destroy();
+    chart3 = createChart('chart3', 'bar', names, cites);
+}
+
+// populate dropdowns
+const uniqueFields = [...new Set(facultyFields)];
+
+uniqueFields.forEach(f => {
+    let opt1 = document.createElement("option");
+    opt1.value = f;
+    opt1.textContent = f;
+    document.getElementById("fieldFilter1").appendChild(opt1);
+
+    let opt2 = document.createElement("option");
+    opt2.value = f;
+    opt2.textContent = f;
+    document.getElementById("fieldFilter3").appendChild(opt2);
+});
+// initial render
+filterChart1();
+filterChart3();
+
+createChart('chart2', 'pie', fields, fieldCounts);
+createChart('chart4', 'line', years, counts);
 /* AUTO REFRESH */
 setInterval(() => {
     location.reload();
-}, 10000000);
+}, 100000);
 </script>
 
 </body>
