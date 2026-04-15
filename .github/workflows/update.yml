@@ -29,5 +29,4 @@ jobs:
         env:
           SCOPUS_API_KEY: ${{ secrets.SCOPUS_API_KEY }}
         run: |
-          cd backend
           python app/update_data.py
