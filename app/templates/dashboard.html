@@ -230,7 +230,10 @@ body {
 
     <!-- Top bar -->
     <div class="top-bar">
-        <i class="fas fa-bell"></i>
+        <i class="fas fa-bell" 
+           style="cursor: pointer;" 
+           onclick="window.location.href='{% url 'notifications' %}'">
+        </i>
 
         <div class="profile-container">
             <i class="fas fa-user-circle" onclick="toggleProfile()"></i>
