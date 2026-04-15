@@ -94,7 +94,6 @@ body {
 
 .profile-container {
     position: relative;
-    z-index: 2000;   
 }
 
 .profile-dropdown {
@@ -105,7 +104,6 @@ body {
     padding: 15px;
     border-radius: 8px;
     box-shadow: 0 3px 10px rgba(0,0,0,0.2);
-    z-index: 3000;   
 }
 
 /* Cards (2 per row) */
@@ -230,10 +228,9 @@ body {
 
     <!-- Top bar -->
     <div class="top-bar">
-        <i class="fas fa-bell" 
-           style="cursor: pointer;" 
-           onclick="window.location.href='{% url 'notifications' %}'">
-        </i>
+        <a href="{% url 'notifications' %}" style="color: inherit;">
+            <i class="fas fa-bell"></i>
+        </a>
 
         <div class="profile-container">
             <i class="fas fa-user-circle" onclick="toggleProfile()"></i>
