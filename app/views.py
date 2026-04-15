@@ -3,6 +3,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from backend.firebase_config import get_db
 from app.scopus_service import store_faculty_and_papers
+import time
 
 db = get_db()
 
