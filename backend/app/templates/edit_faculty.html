@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Edit Faculty</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background: #f4f6f9;
+    padding: 40px;
+}
+
+/* Container */
+.container {
+    max-width: 600px;
+    margin: auto;
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+/* Heading */
+h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #2e59d9;
+}
+
+/* Inputs */
+input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 12px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+input:focus {
+    border-color: #2e59d9;
+    outline: none;
+}
+
+/* Buttons */
+.btn {
+    padding: 10px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.save-btn {
+    width: 100%;
+    background: #2e59d9;
+    color: white;
+    font-size: 16px;
+}
+
+.back-btn {
+    background: #aaa;
+    color: white;
+    margin-bottom: 15px;
+}
+
+.btn:hover {
+    opacity: 0.9;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- Back Button -->
+    <a href="{% url 'faculty' %}">
+        <button class="btn back-btn">← Back</button>
+    </a>
+
+    <h2>Edit Faculty</h2>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <input name="name" value="{{ faculty.name }}" placeholder="Name" required>
+        <input name="author_id" value="{{ faculty.author_id }}" placeholder="Scopus ID" required>
+        <input name="department" value="{{ faculty.department }}" placeholder="Department">
+        <input name="field" value="{{ faculty.field }}" placeholder="Field">
+
+        <br>
+
+        <button type="submit" class="btn save-btn">Save Changes</button>
+
+    </form>
+
+</div>
+
+</body>
+</html>
