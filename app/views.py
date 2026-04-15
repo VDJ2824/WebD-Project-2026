@@ -63,6 +63,7 @@ def dashboard_view(request):
     faculty_papers = []
     citations_per_faculty = []
     field_count = {}
+    faculty_fields = []
 
     for fid, faculty in faculties.items():
         faculty_name = faculty.get("name", "Unknown Faculty")
@@ -70,15 +71,18 @@ def dashboard_view(request):
         faculty_paper_map = papers.get(fid, {}) or {}
 
         faculty_names.append(faculty_name)
+        faculty_fields.append(faculty_field)
         faculty_papers.append(len(faculty_paper_map))
 
         faculty_citations = 0
+
         for paper in faculty_paper_map.values():
             citations = paper.get("citations", 0)
+
             try:
                 faculty_citations += int(citations)
-            except (TypeError, ValueError):
-                faculty_citations += 0
+            except:
+                pass
 
             year = paper.get("year", 0)
             if year:
@@ -88,15 +92,16 @@ def dashboard_view(request):
 
         citations_per_faculty.append(faculty_citations)
         total_citations += faculty_citations
+
         field_count[faculty_field] = field_count.get(faculty_field, 0) + 1
 
     years = sorted(year_count.keys())
     counts = [year_count[y] for y in years]
+
     fields = sorted(field_count.keys())
-    field_counts = [field_count[field] for field in fields]
+    field_counts = [field_count[f] for f in fields]
 
     return render(request, "dashboard.html", {
-        "username": request.user.username,
         "total_faculties": total_faculties,
         "total_papers": total_papers,
         "total_citations": total_citations,
@@ -107,6 +112,7 @@ def dashboard_view(request):
         "citations_per_faculty": citations_per_faculty,
         "fields": fields,
         "field_counts": field_counts,
+        "faculty_fields": faculty_fields,
     })
 
 @login_required
