@@ -204,6 +204,29 @@ def delete_faculty(request, fid):
     db.child("papers").child(fid).delete()
     return redirect('faculty')
 
+@login_required
+def notifications_view(request):
+    db = get_db()
+
+    raw = db.child("notifications").get()
+
+    notifications = []
+    one_week_ago = int(time.time()) - (7 * 24 * 60 * 60)
+
+    if raw:
+        for item in raw.each():
+            n = item.val()
+
+            if n.get("timestamp", 0) >= one_week_ago:
+                notifications.append(n)
+
+    # sort latest first
+    notifications.sort(key=lambda x: x["timestamp"], reverse=True)
+
+    return render(request, "notifications.html", {
+        "notifications": notifications
+    })
+
 def logout_view(request):
     logout(request)
     return redirect("login")
