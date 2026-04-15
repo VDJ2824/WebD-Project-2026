@@ -28,5 +28,6 @@ jobs:
       - name: Run update script
         env:
           SCOPUS_API_KEY: ${{ secrets.SCOPUS_API_KEY }}
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
         run: |
           python app/update_data.py
