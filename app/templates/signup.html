@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Signup</title>
+
+<style>
+body {
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+    background:linear-gradient(135deg,#4e73df,#1cc88a);
+    font-family:Arial;
+}
+.box {
+    background:white;
+    padding:30px;
+    border-radius:10px;
+    width:300px;
+    text-align:center;
+}
+input {
+    width:100%;
+    padding:10px;
+    margin-bottom:10px;
+}
+button {
+    width:100%;
+    padding:10px;
+    background:#2e59d9;
+    color:white;
+    border:none;
+}
+</style>
+</head>
+
+<body>
+
+<div class="box">
+<h2>Signup</h2>
+
+<form method="POST">
+    {% csrf_token %}
+    <input name="username" placeholder="Username" required>
+    <input name="password" type="password" placeholder="Password" required>
+
+    <button type="submit">Register</button>
+</form>
+
+<p><a href="{% url 'login' %}">Back to login</a></p>
+
+</div>
+
+</body>
+</html>
