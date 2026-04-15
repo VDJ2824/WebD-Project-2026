@@ -9,10 +9,10 @@ db_url = os.getenv("FIREBASE_DATABASE_URL")
 if not firebase_json:
     raise ValueError("Missing FIREBASE_SERVICE_ACCOUNT")
 
-if not db_url:
-    raise ValueError("Missing FIREBASE_DATABASE_URL")
-
 firebase_config = json.loads(firebase_json)
+
+# 🔥 CRITICAL FIX FOR JWT ERROR
+firebase_config["private_key"] = firebase_config["private_key"].replace("\\n", "\n")
 
 if not firebase_admin._apps:
     cred = credentials.Certificate(firebase_config)
@@ -23,3 +23,4 @@ if not firebase_admin._apps:
 
 def get_db():
     return db.reference()
+    
