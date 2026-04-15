@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Faculty Profile</title>
+
+<style>
+body {
+    font-family: Arial;
+    background:#f4f6f9;
+    padding:30px;
+}
+
+/* PROFILE SECTION */
+.profile {
+    background:white;
+    padding:25px;
+    border-radius:12px;
+    margin-bottom:25px;
+    box-shadow:0 5px 15px rgba(0,0,0,0.1);
+}
+
+.profile h2 {
+    color:#2e59d9;
+}
+
+/* PAPER SECTION */
+.paper-section {
+    margin-top:20px;
+}
+
+.paper-container {
+    display:flex;
+    flex-direction:column;   /* 👈 makes it vertical */
+    gap:15px;
+
+    max-height:400px;       /* 👈 enables vertical scroll */
+    overflow-y:auto;        /* 👈 vertical scroll */
+}
+
+.paper-card {
+    min-width:300px;
+    background:white;
+    padding:15px;
+    border-radius:10px;
+    box-shadow:0 3px 10px rgba(0,0,0,0.1);
+    transition:0.3s;
+}
+
+.paper-card:hover {
+    transform:translateY(-5px);
+}
+
+.paper-title {
+    font-weight:bold;
+    margin-bottom:8px;
+}
+
+.link {
+    display:inline-block;
+    margin-top:8px;
+    color:#2e59d9;
+    text-decoration:none;
+}
+</style>
+</head>
+
+<body>
+
+<!-- 👨‍🏫 PROFILE -->
+<div class="profile">
+    <h2>{{ faculty.name }}</h2>
+
+    <p><strong>Scopus ID:</strong> {{ faculty.author_id }}</p>
+    <p><strong>Department:</strong> {{ faculty.department }}</p>
+    <p><strong>Field:</strong> {{ faculty.field }}</p>
+</div>
+
+<!-- 📄 PAPERS -->
+<div class="paper-section">
+    <h3>Research Papers</h3>
+
+    <div class="paper-container">
+
+    {% for paper in papers %}
+        <div class="paper-card">
+            <div class="paper-title">{{ paper.title }}</div>
+            <p>Year: {{ paper.year }}</p>
+            <p>Citations: {{ paper.citations }}</p>
+
+            {% if paper.scopus_url %}
+                <a href="{{ paper.scopus_url }}" target="_blank" class="link">View Paper</a>
+            {% else %}
+                <span>No link</span>
+            {% endif %}
+        </div>
+    {% endfor %}
+
+    </div>
+</div>
+
+</body>
+</html>
