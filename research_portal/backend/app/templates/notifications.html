@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Notifications</title>
+
+<style>
+body {
+    font-family: Arial;
+    background: #f4f6f9;
+    padding: 30px;
+}
+
+h2 {
+    margin-bottom: 20px;
+}
+
+/* Card style */
+.notification-card {
+    background: white;
+    padding: 15px 20px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+}
+
+.time {
+    font-size: 12px;
+    color: gray;
+    margin-top: 5px;
+}
+</style>
+</head>
+
+<body>
+
+<h2>Recent Updates (Last 7 Days)</h2>
+
+{% if notifications %}
+    {% for n in notifications %}
+        <div class="notification-card">
+            <strong>{{ n.faculty_name }}</strong><br>
+
+            {% if n.new_papers > 0 %}
+                📄 {{ n.new_papers }} new papers added<br>
+            {% endif %}
+
+            {% if n.updated_papers > 0 %}
+                🔄 {{ n.updated_papers }} papers updated (citations changed)<br>
+            {% endif %}
+
+            <div class="time">
+                {{ n.timestamp }}
+            </div>
+        </div>
+    {% endfor %}
+{% else %}
+    <p>No updates in the last 7 days.</p>
+{% endif %}
+
+</body>
+</html>
