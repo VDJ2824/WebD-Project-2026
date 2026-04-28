@@ -18,6 +18,26 @@ body {
     padding: 40px;
 }
 
+.top-nav {
+    display:flex;
+    justify-content:flex-start;
+    margin-bottom:18px;
+}
+
+.home-link {
+    width:40px;
+    height:40px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:10px;
+    background:#2e59d9;
+    color:white;
+    text-decoration:none;
+    font-size:18px;
+    box-shadow:0 4px 10px rgba(46,89,217,0.2);
+}
+
 /* Container */
 .container {
     max-width: 600px;
@@ -36,15 +56,16 @@ h2 {
 }
 
 /* Inputs */
-input {
+input, select {
     width: 100%;
     padding: 10px;
     margin-bottom: 12px;
     border-radius: 6px;
     border: 1px solid #ccc;
+    background: white;
 }
 
-input:focus {
+input:focus, select:focus {
     border-color: #2e59d9;
     outline: none;
 }
@@ -78,6 +99,10 @@ input:focus {
 
 <body>
 
+<div class="top-nav">
+    <a href="{% url 'dashboard' %}" class="home-link" aria-label="Go to dashboard">⌂</a>
+</div>
+
 <div class="container">
 
     <!-- Back Button -->
@@ -90,6 +115,14 @@ input:focus {
     <form method="POST">
         {% csrf_token %}
 
+        <select name="salutation">
+            <option value="" {% if not faculty.salutation %}selected{% endif %}>Select salutation</option>
+            <option value="Dr." {% if faculty.salutation == 'Dr.' %}selected{% endif %}>Dr.</option>
+            <option value="Prof." {% if faculty.salutation == 'Prof.' %}selected{% endif %}>Prof.</option>
+            <option value="Mr." {% if faculty.salutation == 'Mr.' %}selected{% endif %}>Mr.</option>
+            <option value="Ms." {% if faculty.salutation == 'Ms.' %}selected{% endif %}>Ms.</option>
+            <option value="Mrs." {% if faculty.salutation == 'Mrs.' %}selected{% endif %}>Mrs.</option>
+        </select>
         <input name="name" value="{{ faculty.name }}" placeholder="Name" required>
         <input name="author_id" value="{{ faculty.author_id }}" placeholder="Scopus ID" required>
         <input name="department" value="{{ faculty.department }}" placeholder="Department">
