@@ -3,7 +3,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from backend.firebase_config import get_db
-from app.scopus_service import store_faculty_and_papers
+from app.scopus_service import store_faculty_and_papers, fetch_and_store_author_metrics
 import time
 
 db = get_db()
@@ -145,6 +145,7 @@ def faculty_list(request):
 
 @login_required
 def faculty_profile(request, fid):
+    fetch_and_store_author_metrics(fid)
     faculty = db.child("faculties").child(fid).get()
     papers = db.child("papers").child(fid).get() or {}
 
@@ -169,6 +170,7 @@ def add_faculty(request):
         ids = request.POST.getlist('author_id[]')
         depts = request.POST.getlist('department[]')
         fields = request.POST.getlist('field[]')
+        salutations = request.POST.getlist('salutation[]')
 
         for i in range(len(names)):
             if names[i].strip():
@@ -176,7 +178,8 @@ def add_faculty(request):
                     names[i],
                     ids[i],
                     depts[i],
-                    fields[i]
+                    fields[i],
+                    salutations[i] if i < len(salutations) else ""
                 )
 
                 if result["status"] == "error":
@@ -209,6 +212,7 @@ def edit_faculty(request, fid):
 
     if request.method == "POST":
         db.child("faculties").child(fid).update({
+            "salutation": request.POST.get('salutation', ''),
             "name": request.POST['name'],
             "author_id": request.POST['author_id'],
             "department": request.POST['department'],
@@ -240,8 +244,9 @@ def notifications_view(request):
     one_week_ago = int(time.time()) - (7 * 24 * 60 * 60)
 
     if raw:
-        for item in raw.each():
-            n = item.val()
+        for n in raw.values():
+            if not isinstance(n, dict):
+                continue
 
             if n.get("timestamp", 0) >= one_week_ago:
                 notifications.append(n)
