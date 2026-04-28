@@ -11,6 +11,26 @@ body {
     padding:30px;
 }
 
+.top-nav {
+    display:flex;
+    justify-content:flex-start;
+    margin-bottom:18px;
+}
+
+.home-link {
+    width:40px;
+    height:40px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:10px;
+    background:#2e59d9;
+    color:white;
+    text-decoration:none;
+    font-size:18px;
+    box-shadow:0 4px 10px rgba(46,89,217,0.2);
+}
+
 /* PROFILE SECTION */
 .profile {
     background:white;
@@ -24,22 +44,83 @@ body {
     color:#2e59d9;
 }
 
+.metrics {
+    display:grid;
+    grid-template-columns: repeat(3, minmax(140px, 1fr));
+    gap:15px;
+    margin-top:20px;
+}
+
+.metric-card {
+    background:#f7f9fc;
+    border:1px solid #e1e7f0;
+    border-radius:10px;
+    padding:14px 16px;
+}
+
+.metric-label {
+    font-size:13px;
+    color:#666;
+    margin-bottom:6px;
+}
+
+.metric-value {
+    font-size:24px;
+    font-weight:bold;
+    color:#2e59d9;
+}
+
 /* PAPER SECTION */
 .paper-section {
     margin-top:20px;
 }
 
+.section-header {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:16px;
+    margin-bottom:14px;
+}
+
+.section-header h3 {
+    margin:0;
+}
+
+.paper-controls {
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.paper-sort {
+    padding:8px 10px;
+    border-radius:8px;
+    border:1px solid #d7deea;
+    background:white;
+}
+
+.sort-toggle {
+    width:38px;
+    height:38px;
+    border:none;
+    border-radius:8px;
+    background:#2e59d9;
+    color:white;
+    font-size:18px;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
 .paper-container {
     display:flex;
-    flex-direction:column;   /* 👈 makes it vertical */
+    flex-direction:column;
     gap:15px;
-
-    max-height:400px;       /* 👈 enables vertical scroll */
-    overflow-y:auto;        /* 👈 vertical scroll */
 }
 
 .paper-card {
-    min-width:300px;
     background:white;
     padding:15px;
     border-radius:10px;
@@ -67,23 +148,57 @@ body {
 
 <body>
 
-<!-- 👨‍🏫 PROFILE -->
+<div class="top-nav">
+    <a href="{% url 'dashboard' %}" class="home-link" aria-label="Go to dashboard">⌂</a>
+</div>
+
+<!-- PROFILE -->
 <div class="profile">
-    <h2>{{ faculty.name }}</h2>
+    <h2>{% if faculty.salutation %}{{ faculty.salutation }} {% endif %}{{ faculty.name }}</h2>
 
     <p><strong>Scopus ID:</strong> {{ faculty.author_id }}</p>
     <p><strong>Department:</strong> {{ faculty.department }}</p>
     <p><strong>Field:</strong> {{ faculty.field }}</p>
+
+    <div class="metrics">
+        <div class="metric-card">
+            <div class="metric-label">H-Index</div>
+            <div class="metric-value">{{ faculty.metrics.h_index|default:0 }}</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-label">Total Citations</div>
+            <div class="metric-value">{{ faculty.metrics.citations|default:0 }}</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-label">Documents</div>
+            <div class="metric-value">{{ faculty.metrics.documents|default:0 }}</div>
+        </div>
+    </div>
 </div>
 
-<!-- 📄 PAPERS -->
+<!-- PAPERS -->
 <div class="paper-section">
-    <h3>Research Papers</h3>
+    <div class="section-header">
+        <h3>Research Papers</h3>
+        <div class="paper-controls">
+            <select id="paperSort" class="paper-sort">
+                <option value="title">Title</option>
+                <option value="year">Year</option>
+                <option value="citations">Citation Count</option>
+            </select>
+            <button type="button" id="sortToggle" class="sort-toggle" onclick="toggleSortDirection()" aria-label="Toggle sort order">
+                ↑
+            </button>
+        </div>
+    </div>
 
     <div class="paper-container">
 
     {% for paper in papers %}
-        <div class="paper-card">
+        <div class="paper-card"
+             data-title="{{ paper.title|default:''|lower }}"
+             data-year="{{ paper.year|default:0 }}"
+             data-citations="{{ paper.citations|default:0 }}">
             <div class="paper-title">{{ paper.title }}</div>
             <p>Year: {{ paper.year }}</p>
             <p>Citations: {{ paper.citations }}</p>
@@ -98,6 +213,52 @@ body {
 
     </div>
 </div>
+
+<script>
+let sortAscending = true;
+
+function getSortableValue(card, sortBy) {
+    if (sortBy === "year") {
+        return Number(card.dataset.year || 0);
+    }
+
+    if (sortBy === "citations") {
+        return Number(card.dataset.citations || 0);
+    }
+
+    return (card.dataset.title || "").toLowerCase();
+}
+
+function sortPapers() {
+    const container = document.querySelector(".paper-container");
+    const sortBy = document.getElementById("paperSort").value;
+    const cards = Array.from(container.querySelectorAll(".paper-card"));
+
+    cards.sort((a, b) => {
+        const valueA = getSortableValue(a, sortBy);
+        const valueB = getSortableValue(b, sortBy);
+
+        if (typeof valueA === "string" && typeof valueB === "string") {
+            return sortAscending
+                ? valueA.localeCompare(valueB)
+                : valueB.localeCompare(valueA);
+        }
+
+        return sortAscending ? valueA - valueB : valueB - valueA;
+    });
+
+    cards.forEach((card) => container.appendChild(card));
+}
+
+function toggleSortDirection() {
+    sortAscending = !sortAscending;
+    document.getElementById("sortToggle").textContent = sortAscending ? "↑" : "↓";
+    sortPapers();
+}
+
+document.getElementById("paperSort").addEventListener("change", sortPapers);
+sortPapers();
+</script>
 
 </body>
 </html>
