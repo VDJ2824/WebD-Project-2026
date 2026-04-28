@@ -90,20 +90,26 @@ body {
     justify-content: flex-end;
     gap: 20px;
     margin-bottom: 20px;
+    position: relative;
+    z-index: 20;
 }
 
 .profile-container {
     position: relative;
+    z-index: 30;
 }
 
 .profile-dropdown {
     display: none;
     position: absolute;
     right: 0;
+    top: 100%;
+    margin-top: 10px;
     background: white;
     padding: 15px;
     border-radius: 8px;
     box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+    z-index: 9999;
 }
 
 /* Cards (2 per row) */
@@ -381,7 +387,7 @@ function createChart(id, type, labels, data) {
 
     const ctx = canvas.getContext('2d');
 
-    // 👉 Fix overcrowding ONLY for bar charts
+    // Fix overcrowding for bar charts
     if (type === 'bar') {
         canvas.parentElement.style.overflowX = "auto";
         canvas.style.minWidth = (labels.length * 80) + "px";
@@ -428,7 +434,7 @@ function createChart(id, type, labels, data) {
 
 let chart1, chart3;
 
-// ✅ Papers chart filter
+// Papers chart filter
 function filterChart1() {
     const field = document.getElementById("fieldFilter1").value;
 
@@ -446,7 +452,7 @@ function filterChart1() {
     chart1 = createChart('chart1', 'bar', names, papers);
 }
 
-// ✅ Citations chart filter
+// Citations chart filter
 function filterChart3() {
     const field = document.getElementById("fieldFilter3").value;
 
