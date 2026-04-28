@@ -29,6 +29,12 @@ h2 {
     color: gray;
     margin-top: 5px;
 }
+
+.change-list {
+    margin-top: 8px;
+    color: #333;
+    font-size: 14px;
+}
 </style>
 </head>
 
@@ -46,7 +52,30 @@ h2 {
             {% endif %}
 
             {% if n.updated_papers > 0 %}
-                🔄 {{ n.updated_papers }} papers updated (citations changed)<br>
+                🔄 {{ n.updated_papers }} papers updated<br>
+            {% endif %}
+
+            {% if n.updated_fields %}
+                <div class="change-list">
+                    Paper fields changed: {{ n.updated_fields|join:", " }}
+                </div>
+            {% endif %}
+
+            {% if n.metrics_changed %}
+                <div class="change-list">
+                    Metrics updated:
+                    {% if n.metrics_changes.h_index %}
+                        H-Index {{ n.metrics_changes.h_index.old }} → {{ n.metrics_changes.h_index.new }}
+                    {% endif %}
+                    {% if n.metrics_changes.citations %}
+                        {% if n.metrics_changes.h_index %}, {% endif %}
+                        Citations {{ n.metrics_changes.citations.old }} → {{ n.metrics_changes.citations.new }}
+                    {% endif %}
+                    {% if n.metrics_changes.documents %}
+                        {% if n.metrics_changes.h_index or n.metrics_changes.citations %}, {% endif %}
+                        Documents {{ n.metrics_changes.documents.old }} → {{ n.metrics_changes.documents.new }}
+                    {% endif %}
+                </div>
             {% endif %}
 
             <div class="time">
