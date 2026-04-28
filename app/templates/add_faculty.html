@@ -14,6 +14,26 @@
             padding:30px;
         }
 
+        .top-nav {
+            display:flex;
+            justify-content:flex-start;
+            margin-bottom:18px;
+        }
+
+        .home-link {
+            width:40px;
+            height:40px;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            border-radius:10px;
+            background:#2e59d9;
+            color:white;
+            text-decoration:none;
+            font-size:18px;
+            box-shadow:0 4px 10px rgba(46,89,217,0.2);
+        }
+
         .container {
             max-width:800px;
             margin:auto;
@@ -47,7 +67,7 @@
         }
 
         /* Inputs */
-        input {
+        input, select {
             width:100%;
             padding:12px;
             margin:6px 0 15px 0;
@@ -55,9 +75,10 @@
             border:1px solid #ccc;
             outline:none;
             transition:0.2s;
+            background:white;
         }
 
-        input:focus {
+        input:focus, select:focus {
             border-color:#2e59d9;
             box-shadow:0 0 5px rgba(46,89,217,0.3);
         }
@@ -105,6 +126,10 @@
 
 <body>
 
+<div class="top-nav">
+    <a href="{% url 'dashboard' %}" class="home-link" aria-label="Go to dashboard">⌂</a>
+</div>
+
 <div class="container">
 
 <h2>Add Faculty</h2>
@@ -116,6 +141,16 @@
 
         <!-- ONE DEFAULT FORM -->
         <div class="block">
+
+            <label>Salutation</label>
+            <select name="salutation[]">
+                <option value="">Select salutation</option>
+                <option value="Dr.">Dr.</option>
+                <option value="Prof.">Prof.</option>
+                <option value="Mr.">Mr.</option>
+                <option value="Ms.">Ms.</option>
+                <option value="Mrs.">Mrs.</option>
+            </select>
 
             <label>Name</label>
             <input type="text" name="name[]" required>
@@ -147,6 +182,16 @@ function addForm() {
 
     let newForm = `
     <div class="block">
+            <label>Salutation</label>
+            <select name="salutation[]">
+                <option value="">Select salutation</option>
+                <option value="Dr.">Dr.</option>
+                <option value="Prof.">Prof.</option>
+                <option value="Mr.">Mr.</option>
+                <option value="Ms.">Ms.</option>
+                <option value="Mrs.">Mrs.</option>
+            </select>
+
         <label>Name</label>
             <input type="text" name="name[]" required>
 
